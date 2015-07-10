@@ -1,0 +1,46 @@
+﻿<Page
+    x:Class="CoffeeAuth.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CoffeeAuth"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Name="Output" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="88*"/>
+            <RowDefinition Height="165*"/>
+            <RowDefinition Height="66*"/>
+            <RowDefinition Height="641*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="65*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Width="622" Grid.Column="1" Grid.Row="1" Height="116" VerticalAlignment="Top" FontFamily="Calibri Light">
+        	<Run Foreground="#FF01A3FF" FontSize="48" Text="Badge in to make coffee!"/>
+        	<LineBreak/>
+        	<LineBreak/>
+        	<Run FontSize="24" Text="ACCESS CONTROL DEPENDS ON YOU!"/>
+        	<LineBreak/>
+        </TextBlock>
+        <TextBox x:Name="badgeCIN" HorizontalAlignment="Left" Margin="10,5.333,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="294" PlaceholderText="Badge CIN" Grid.Row="2" Grid.Column="1" LostFocus="badgeCIN_LostFocus" />
+        <Button x:Name="getCoffee" Content="Give Coffee" HorizontalAlignment="Left" Margin="309,5.333,0,0" VerticalAlignment="Top" Click="coffee_Click" Grid.Column="1" Grid.Row="2" />
+        <ListView x:Name="listView" Grid.Column="1" HorizontalAlignment="Left" Height="436" Margin="10,70.333,0,0" Grid.Row="3" VerticalAlignment="Top" Width="396" IsEnabled="False"/>
+        <TextBlock x:Name="textBlock1" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10.333,0,0" Grid.Row="3" TextWrapping="Wrap" Text="board" VerticalAlignment="Top" Height="55" Width="209" FontSize="32"/>
+        <!--Hub Header="CoffeeHub" Grid.Column="1" Margin="10,10.333,432,10" Grid.Row="3">
+            <HubSection Header="Leaderboards">
+                <DataTemplate>
+                    <Grid>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+            <HubSection Header="Visualizations">
+                <DataTemplate>
+                    <Grid/>
+                </DataTemplate>
+            </HubSection>
+        </-->
+    </Grid>
+</Page>
