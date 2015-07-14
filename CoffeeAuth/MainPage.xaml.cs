@@ -1,4 +1,6 @@
 ﻿using CoffeeAuth.Models;
+using Microsoft.Maker.RemoteWiring;
+using Microsoft.Maker.Serial;
 using SQLitePCL;
 using System;
 using System.Collections.Generic;
@@ -41,6 +43,8 @@ namespace CoffeeAuth
             base.OnNavigatedTo(e);
             var users = GetAllUsers();
             listView.ItemsSource = users;
+
+            setupPins();
         }
 
         private void coffee_Click(object sender, RoutedEventArgs e)
@@ -71,7 +75,17 @@ namespace CoffeeAuth
         private async void badgeCIN_LostFocus(object sender, RoutedEventArgs e)
         {
             await Task.Delay(1000);
-            this.badgeCIN.Focus(FocusState.Programmatic);
+            badgeCIN.Focus(FocusState.Programmatic);
         }
+        
+        private void setupPins()
+        {
+            Task.Delay(5000).ContinueWith(_ =>
+            {
+                App.arduino.pinMode(13, PinMode.OUTPUT);
+                App.arduino.digitalWrite(13, PinState.LOW);
+            });
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CoffeeAuth.Models;
+using Microsoft.Maker.RemoteWiring;
 using SQLitePCL;
 using System;
 using System.Collections.Generic;
@@ -6,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -93,16 +96,42 @@ namespace CoffeeAuth
             }
         }
 
-        private void getCoffeeButton_Click(object sender, RoutedEventArgs e)
+        ContentDialog countdown_dialog;
+
+        private async void getCoffeeButton_Click(object sender, RoutedEventArgs e)
         {
             showToast("Espresso Shot", "$1 debited from your account", "thank you for shopping!");
             m_user.Balance--;
             userBalance.Text = m_user.Balance.ToString();
             UpdateUserBalance(m_user);
-            this.Frame.Navigate(typeof(MainPage));
 
-            // todo: turn on grinder for around 1 minute
+            // Turn on grinder
+            Countdown();
+            App.arduino.digitalWrite(13, PinState.HIGH);
 
+            await Task.Delay(30000).ContinueWith(_ =>
+            {
+                App.arduino.digitalWrite(13, PinState.LOW);
+            });
+
+            Frame.Navigate(typeof(MainPage));
+            countdown_dialog.Hide();
+        }
+
+        private async void Countdown()
+        {
+            TextBlock text = new TextBlock();
+            text.Text = "You have 30 seconds to grind your coffee";
+
+            StackPanel stack = new StackPanel();
+            stack.Margin = new Thickness(0, 40, 0, 0);
+            stack.Children.Add(text);
+
+            countdown_dialog = new ContentDialog();
+            countdown_dialog.Content = stack;
+            SolidColorBrush color = new SolidColorBrush(Colors.Black);
+            countdown_dialog.Background = color;
+            await countdown_dialog.ShowAsync();
         }
 
         private void bagButton_Click(object sender, RoutedEventArgs e)
@@ -123,38 +152,8 @@ namespace CoffeeAuth
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainPage));
+            Frame.Navigate(typeof(MainPage));
         }
-
-
-
-        /// <summary>
-        /// Used to display messages to the user
-        /// </summary>
-        /// <param name="strMessage"></param>
-        /// <param name="type"></param>
-        public void NotifyUser(string strMessage, NotifyType type)
-        {
-            switch (type)
-            {
-                case NotifyType.StatusMessage:
-                    StatusBorder.Background = new SolidColorBrush(Windows.UI.Colors.Green);
-                    break;
-                case NotifyType.ErrorMessage:
-                    StatusBorder.Background = new SolidColorBrush(Windows.UI.Colors.Red);
-                    break;
-            }
-            StatusBlock.Text = strMessage;
-
-            // Collapse the StatusBlock if it has no text to conserve real estate.
-            StatusBorder.Visibility = (StatusBlock.Text != String.Empty) ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public enum NotifyType
-        {
-            StatusMessage,
-            ErrorMessage
-        };
 
         private void showToast(string heading, string body, string body2)
 
@@ -184,5 +183,110 @@ namespace CoffeeAuth
         }
 
 
+        
+
+        ContentDialog m_settleDialog;
+        TextBox m_input;
+
+        private async void settleButton_Click(object sender, RoutedEventArgs e)
+        {
+            TextBlock title = new TextBlock();
+            title.Text = "Enter a positive or negative value";
+
+            m_input = new TextBox();
+            m_input.PlaceholderText = "Amount";
+            m_input.InputScope = new InputScope
+            {
+                Names =
+                {
+                    new InputScopeName(InputScopeNameValue.Digits)
+                }
+            };
+
+            Button debit = new Button();
+            debit.Content = "Debit";
+            debit.Click += Debit_Click;
+            debit.HorizontalAlignment = HorizontalAlignment.Right;
+
+            Button credit = new Button();
+            credit.Content = "Credit";
+            credit.Click += Credit_Click; ;
+            credit.HorizontalAlignment = HorizontalAlignment.Right;
+
+            Button cancel = new Button();
+            cancel.Content = "Cancel";
+            cancel.Click += Cancel_Click;
+            cancel.HorizontalAlignment = HorizontalAlignment.Right;
+
+            StackPanel buttonStack = new StackPanel();
+            buttonStack.Orientation = Orientation.Horizontal;
+            buttonStack.HorizontalAlignment = HorizontalAlignment.Right;
+            buttonStack.Children.Add(cancel);
+            buttonStack.Children.Add(debit);
+            buttonStack.Children.Add(credit);
+
+            StackPanel stack = new StackPanel();
+            stack.Margin = new Thickness(0, 40, 0, 0);
+            stack.Children.Add(title);
+            stack.Children.Add(m_input);
+            stack.Children.Add(buttonStack);
+
+            m_settleDialog = new ContentDialog();
+            m_settleDialog.Content = stack;
+            m_settleDialog.Background = new SolidColorBrush(Colors.Black);
+
+            await m_settleDialog.ShowAsync();
+        }
+
+        private void Credit_Click(object sender, RoutedEventArgs e)
+        {
+            string val = m_input.Text;
+            try
+            {
+                int num = Convert.ToInt32(val);
+
+                string body = "$" + num + " credited to your account.";
+                showToast("Settled Up", body, "Everyone appreciates your efforts");
+
+                m_user.Balance += num;
+                userBalance.Text = m_user.Balance.ToString();
+                UpdateUserBalance(m_user);
+
+                m_settleDialog.Hide();
+            }
+            catch
+            {
+                // todo show error
+            }
+        }
+
+        
+
+        private void Debit_Click(object sender, RoutedEventArgs e)
+        {
+            string val = m_input.Text;
+            try
+            {
+                int num = Convert.ToInt32(val);
+
+                string body = "$" + num + " debited from your account.";
+                showToast("Settled Up", body, "Everyone appreciates your efforts");
+
+                m_user.Balance -= num;
+                userBalance.Text = m_user.Balance.ToString();
+                UpdateUserBalance(m_user);
+
+                m_settleDialog.Hide();
+            }
+            catch
+            {
+                // todo show error
+            }
+        }
+
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            m_settleDialog.Hide();
+        }
     }
 }

@@ -14,6 +14,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+
+using Microsoft.Maker.RemoteWiring;
+using Microsoft.Maker.Serial;
 using SQLitePCL;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=402347&clcid=0x409
@@ -25,8 +28,10 @@ namespace CoffeeAuth
     /// </summary>
     sealed partial class App : Application
     {
-        public static SQLiteConnection conn;
+        public static IStream usb;
+        public static RemoteDevice arduino;
 
+        public static SQLiteConnection conn;
         public string DBPath;
         /// <summary>
         /// Allows tracking page views, exceptions and other telemetry through the Microsoft Application Insights service.
@@ -44,7 +49,6 @@ namespace CoffeeAuth
             this.InitializeComponent();
             this.Suspending += OnSuspending;
 
-            // todo add global database
             conn = new SQLiteConnection("coffeepeople.db");
             string s = @"CREATE TABLE IF NOT EXISTS
                             Customer (Id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -58,6 +62,9 @@ namespace CoffeeAuth
                 statement.Step();
             }
 
+            App.usb = new UsbSerial("2341", "8036");
+            App.arduino = new RemoteDevice(App.usb);
+            App.usb.begin(115200, SerialConfig.SERIAL_8N1);
         }
 
         /// <summary>
