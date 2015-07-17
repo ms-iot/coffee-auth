@@ -18,5 +18,10 @@ namespace CoffeeAuth.Models
         public long NumLogins;
 
         public string PictureUrl;
+
+        public override string ToString()
+        {
+            return Name + "\t\t" + Balance + "$"; 
+        }
     }
 }

@@ -9,6 +9,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Maker.RemoteWiring;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -49,21 +50,21 @@ namespace CoffeeAuth
                 // Show user profile
                 userName.Text = m_user.Name;
                 userBalance.Text = m_user.Balance.ToString();
+
+                m_user.NumLogins++;
+                DrinkerDatabase.Instance.UpdateUser(m_user);
             }
         }
-
-        
-
-        
 
         DispatcherTimer timer;
         ContentDialog countdown_dialog;
 
 
-        private async void getCoffeeButton_Click(object sender, RoutedEventArgs e)
+        private void getCoffeeButton_Click(object sender, RoutedEventArgs e)
         {
             showToast("Espresso Shot", "$1 debited from your account", "thank you for shopping!");
             m_user.Balance--;
+            m_user.NumShots++;
             userBalance.Text = m_user.Balance.ToString();
             DrinkerDatabase.Instance.UpdateUser(m_user);
 
@@ -137,6 +138,7 @@ namespace CoffeeAuth
         {
             showToast("Espresso Beans Deposited", "$14 credited to your account.", "Everyone appreciates your efforts");
             m_user.Balance += 14;
+            m_user.NumBags++;
             userBalance.Text = m_user.Balance.ToString();
             DrinkerDatabase.Instance.UpdateUser(m_user);
         }
@@ -145,6 +147,7 @@ namespace CoffeeAuth
         {
             showToast("Milk Jug Deposited", "$6 credited to your account.", "Everyone appreciates your efforts");
             m_user.Balance += 6;
+            m_user.NumMilks++;
             userBalance.Text = m_user.Balance.ToString();
             DrinkerDatabase.Instance.UpdateUser(m_user);
         }

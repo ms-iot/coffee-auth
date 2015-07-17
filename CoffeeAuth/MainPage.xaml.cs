@@ -40,7 +40,6 @@ namespace CoffeeAuth
             if (badgeCIN.Text.Length != 0)
                 this.Frame.Navigate(typeof(UserPage), badgeCIN.Text);
         }
-
         
 
         private async void badgeCIN_LostFocus(object sender, RoutedEventArgs e)

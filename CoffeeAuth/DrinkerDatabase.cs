@@ -47,15 +47,20 @@ namespace CoffeeAuth
         public List<User> GetAllUsers()
         {
             List<User> users = new List<User>();
-            using (var statement = conn.Prepare("SELECT Name, Balance, BadgeCIN FROM Customer"))
+            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl FROM Customer"))
             {
                 while (SQLiteResult.ROW == statement.Step())
                 {
                     var user = new User()
                     {
-                        Name = (string)statement[0],
-                        Balance = (long)statement[1],
-                        BadgeCIN = (string)statement[2]
+                        BadgeCIN = (string)statement[0],
+                        Name = (string)statement[1],
+                        Balance = (long)statement[2],
+                        NumBags = (long)statement[3],
+                        NumMilks = (long)statement[4],
+                        NumShots = (long)statement[5],
+                        NumLogins = (long)statement[6],
+                        PictureUrl = (string)statement[7]
                     };
                     users.Add(user);
                 }
@@ -69,11 +74,16 @@ namespace CoffeeAuth
 
             try
             {
-                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE) VALUES (?, ?, ?)"))
+                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
                 {
                     userstmt.Bind(1, name);
                     userstmt.Bind(2, badgeCIN);
                     userstmt.Bind(3, 1); // initial balance of 1
+                    userstmt.Bind(4, 0);
+                    userstmt.Bind(5, 0);
+                    userstmt.Bind(6, 0);
+                    userstmt.Bind(7, 0);
+                    userstmt.Bind(8, ""); // no image
                     userstmt.Step();
                 }
             }
@@ -87,18 +97,23 @@ namespace CoffeeAuth
         {
             User user = null;
 
-            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance FROM Customer WHERE BadgeCIN = ?"))
+            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl FROM Customer WHERE BadgeCIN = ?"))
             {
 
                 statement.Bind(1, badgeCIN);
                 if (SQLiteResult.ROW == statement.Step())
                 {
-                        user = new User()
-                        {
-                            BadgeCIN = (string)statement[0],
-                            Name = (string)statement[1],
-                            Balance = (long)statement[2]
-                        };
+                    user = new User()
+                    {
+                        BadgeCIN = (string)statement[0],
+                        Name = (string)statement[1],
+                        Balance = (long)statement[2],
+                        NumBags = (long)statement[3],
+                        NumMilks = (long)statement[4],
+                        NumShots = (long)statement[5],
+                        NumLogins = (long)statement[6],
+                        PictureUrl = (string)statement[7]
+                    };
                 }
             }
             return user;
