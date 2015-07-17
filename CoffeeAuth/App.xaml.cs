@@ -1,18 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 using Microsoft.Maker.RemoteWiring;
@@ -31,12 +21,9 @@ namespace CoffeeAuth
         public static IStream usb;
         public static RemoteDevice arduino;
 
-        public static SQLiteConnection conn;
-        public string DBPath;
         /// <summary>
         /// Allows tracking page views, exceptions and other telemetry through the Microsoft Application Insights service.
         /// </summary>
-        public static Microsoft.ApplicationInsights.TelemetryClient TelemetryClient;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -44,27 +31,16 @@ namespace CoffeeAuth
         /// </summary>
         public App()
         {
-            TelemetryClient = new Microsoft.ApplicationInsights.TelemetryClient();
 
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-
-            conn = new SQLiteConnection("coffeepeople.db");
-            string s = @"CREATE TABLE IF NOT EXISTS
-                            Customer (Id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                                Name        VARCHAR( 140 ),
-                                BadgeCIN    VARCHAR( 140 ),
-                                Balance     INTEGER 
-                            );";
-
-            using (var statement = conn.Prepare(s))
-            {
-                statement.Step();
-            }
-
+            
+            // Setup arduino
+#if !HARDWARE
             App.usb = new UsbSerial("2341", "8036");
             App.arduino = new RemoteDevice(App.usb);
             App.usb.begin(115200, SerialConfig.SERIAL_8N1);
+#endif
         }
 
         /// <summary>

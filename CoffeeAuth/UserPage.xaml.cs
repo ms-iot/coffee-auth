@@ -1,21 +1,11 @@
 ﻿using CoffeeAuth.Models;
-using Microsoft.Maker.RemoteWiring;
 using SQLitePCL;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
@@ -44,7 +34,7 @@ namespace CoffeeAuth
 
 
             // check if user is in the database
-            m_user = GetUser(badgeCIN);
+            m_user = DrinkerDatabase.Instance.GetUser(badgeCIN);
             if (m_user == null)
             {
                 // create user
@@ -62,70 +52,79 @@ namespace CoffeeAuth
             }
         }
 
-        private User GetUser(string badgeCIN)
-        {
-            User user = null;
+        
 
-            using (var statement = App.conn.Prepare("SELECT BadgeCIN, Name, Balance FROM Customer WHERE BadgeCIN = ?"))
-            {
-                statement.Bind(1, badgeCIN);
-                if (SQLiteResult.ROW == statement.Step())
-                {
-                        user = new User()
-                        {
-                            BadgeCIN = (string)statement[0],
-                            Name = (string)statement[1],
-                            Balance = (long)statement[2]
-                        };
-                }
-            }
-            return user;
-        }
+        
 
-        private void UpdateUserBalance(User user)
-        {
-            var existingUser = GetUser(badgeCIN);
-            if (existingUser != null)
-            {
-                using (var custstmt = App.conn.Prepare("UPDATE Customer SET Balance = ? WHERE BadgeCIN=?"))
-                {
-                    custstmt.Bind(1, user.Balance);
-                    custstmt.Bind(2, user.BadgeCIN);
-                    custstmt.Step();
-                }
-            }
-        }
-
+        DispatcherTimer timer;
         ContentDialog countdown_dialog;
+
 
         private async void getCoffeeButton_Click(object sender, RoutedEventArgs e)
         {
             showToast("Espresso Shot", "$1 debited from your account", "thank you for shopping!");
             m_user.Balance--;
             userBalance.Text = m_user.Balance.ToString();
-            UpdateUserBalance(m_user);
+            DrinkerDatabase.Instance.UpdateUser(m_user);
 
-            // Turn on grinder
             Countdown();
+            numTicks = 30;
+            timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Tick += Timer_Tick;
+            timer.Start();
+            // Turn on grinder
+#if !HARDWARE
             App.arduino.digitalWrite(13, PinState.HIGH);
+#endif
 
-            await Task.Delay(30000).ContinueWith(_ =>
-            {
-                App.arduino.digitalWrite(13, PinState.LOW);
-            });
-
-            Frame.Navigate(typeof(MainPage));
-            countdown_dialog.Hide();
         }
+
+        int numTicks;
+        TextBlock countdown;
+
+        private void Timer_Tick(object sender, object e)
+        {
+            DispatcherTimer timer = (DispatcherTimer)sender;
+            numTicks--;
+            if (numTicks == 0)
+            {
+            // Turn off grinder
+#if !HARDWARE
+                App.arduino.digitalWrite(13, PinState.LOW);
+#endif
+                Frame.Navigate(typeof(MainPage));
+                countdown_dialog.Hide();
+                timer.Stop();
+            }
+            else
+            {
+                //update timer UI 
+                countdown.Text = numTicks.ToString();
+                if (numTicks <= 15)
+                    countdown.Foreground = new SolidColorBrush(Colors.Orange);
+                if (numTicks <= 5)
+                    countdown.Foreground = new SolidColorBrush(Colors.Red);
+            }
+        }
+
 
         private async void Countdown()
         {
             TextBlock text = new TextBlock();
+            text.HorizontalAlignment = HorizontalAlignment.Center;
             text.Text = "You have 30 seconds to grind your coffee";
+
+            countdown = new TextBlock();
+            countdown.Text = "30";
+            countdown.FontSize = 48;
+            countdown.HorizontalAlignment = HorizontalAlignment.Center;
+            countdown.Padding = new Thickness(0, 10, 0, 0);
 
             StackPanel stack = new StackPanel();
             stack.Margin = new Thickness(0, 40, 0, 0);
             stack.Children.Add(text);
+            stack.Children.Add(countdown);
 
             countdown_dialog = new ContentDialog();
             countdown_dialog.Content = stack;
@@ -139,7 +138,7 @@ namespace CoffeeAuth
             showToast("Espresso Beans Deposited", "$14 credited to your account.", "Everyone appreciates your efforts");
             m_user.Balance += 14;
             userBalance.Text = m_user.Balance.ToString();
-            UpdateUserBalance(m_user);
+            DrinkerDatabase.Instance.UpdateUser(m_user);
         }
 
         private void milkButton_Click(object sender, RoutedEventArgs e)
@@ -147,7 +146,7 @@ namespace CoffeeAuth
             showToast("Milk Jug Deposited", "$6 credited to your account.", "Everyone appreciates your efforts");
             m_user.Balance += 6;
             userBalance.Text = m_user.Balance.ToString();
-            UpdateUserBalance(m_user);
+            DrinkerDatabase.Instance.UpdateUser(m_user);
         }
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
@@ -250,7 +249,7 @@ namespace CoffeeAuth
 
                 m_user.Balance += num;
                 userBalance.Text = m_user.Balance.ToString();
-                UpdateUserBalance(m_user);
+                DrinkerDatabase.Instance.UpdateUser(m_user);
 
                 m_settleDialog.Hide();
             }
@@ -274,7 +273,7 @@ namespace CoffeeAuth
 
                 m_user.Balance -= num;
                 userBalance.Text = m_user.Balance.ToString();
-                UpdateUserBalance(m_user);
+                DrinkerDatabase.Instance.UpdateUser(m_user);
 
                 m_settleDialog.Hide();
             }
