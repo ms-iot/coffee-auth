@@ -18,7 +18,7 @@ namespace CoffeeAuth
     /// </summary>
     sealed partial class App : Application
     {
-        public static IStream usb;
+        public static UsbSerial usb;
         public static RemoteDevice arduino;
 
         /// <summary>
@@ -34,12 +34,23 @@ namespace CoffeeAuth
 
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            
+
             // Setup arduino
 #if !HARDWARE
             App.usb = new UsbSerial("2341", "8036");
             App.arduino = new RemoteDevice(App.usb);
             App.usb.begin(115200, SerialConfig.SERIAL_8N1);
+            App.usb.ConnectionEstablished += Usb_ConnectionEstablished; ;
+#endif
+            
+
+        }
+
+        private void Usb_ConnectionEstablished()
+        {
+#if !HARDWARE
+            App.arduino.pinMode(13, PinMode.OUTPUT);
+            App.arduino.digitalWrite(13, PinState.LOW);
 #endif
         }
 

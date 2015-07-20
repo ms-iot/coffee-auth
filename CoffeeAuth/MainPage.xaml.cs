@@ -1,5 +1,6 @@
 ﻿using CoffeeAuth.Models;
 using Microsoft.Maker.RemoteWiring;
+using Microsoft.Maker.Serial;
 using SQLitePCL;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,8 @@ namespace CoffeeAuth
 
             // set fullscreen
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
+
+
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -32,7 +35,6 @@ namespace CoffeeAuth
             base.OnNavigatedTo(e);
             var users = DrinkerDatabase.Instance.GetAllUsers();
             listView.ItemsSource = users;
-            setupPins();
         }
 
         private void coffee_Click(object sender, RoutedEventArgs e)
@@ -46,17 +48,6 @@ namespace CoffeeAuth
         {
             await Task.Delay(1000);
             badgeCIN.Focus(FocusState.Programmatic);
-        }
-        
-        private void setupPins()
-        {
-#if !HARDWARE
-            Task.Delay(5000).ContinueWith(_ =>
-            {
-                App.arduino.pinMode(13, PinMode.OUTPUT);
-                App.arduino.digitalWrite(13, PinState.LOW);
-            });
-#endif
         }
 
     }
