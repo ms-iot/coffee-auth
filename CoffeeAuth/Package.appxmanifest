@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="21b45950-0f39-49cd-bab9-25b119d49918" Publisher="CN=t-cobroo" Version="1.0.7.0" />
+  <Identity Name="21b45950-0f39-49cd-bab9-25b119d49918" Publisher="CN=t-cobroo" Version="1.0.3.0" />
   <mp:PhoneIdentity PhoneProductId="21b45950-0f39-49cd-bab9-25b119d49918" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>CoffeeAuth</DisplayName>
@@ -8,7 +8,7 @@
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10240.0" MaxVersionTested="10.0.10240.0" />
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10069.0" />
   </Dependencies>
   <Resources>
     <Resource Language="x-generate" />
@@ -22,10 +22,5 @@
   </Applications>
   <Capabilities>
     <Capability Name="internetClient" />
-    <DeviceCapability Name="serialcommunication">
-      <Device Id="any">
-        <Function Type="name:serialPort"/>
-      </Device>
-    </DeviceCapability>
   </Capabilities>
 </Package>

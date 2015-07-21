@@ -36,16 +36,31 @@ namespace CoffeeAuth
             badgeCIN = e.Parameter as string;
         }
 
+        public void createUser()
+        {
+            var db = App.conn;
+
+            try
+            {
+                using (var userstmt = db.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE) VALUES (?, ?, ?)"))
+                {
+                    userstmt.Bind(1, userTextBox.Text);
+                    userstmt.Bind(2, badgeCIN);
+                    userstmt.Bind(3, 0); // initial balance of zero
+                    userstmt.Step();
+                }
+            }
+            catch
+            {
+                // handle error
+            }
+        }
+
         private void createUserButton_Click(object sender, RoutedEventArgs e)
         {
             if (userTextBox.Text.Length != 0)
-                DrinkerDatabase.Instance.createUser(userTextBox.Text, badgeCIN);
+                createUser();
             this.Frame.Navigate(typeof(UserPage), badgeCIN);
-        }
-
-        private void AppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(MainPage));
         }
     }
 
