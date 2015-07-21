@@ -1,21 +1,15 @@
 ﻿using CoffeeAuth.Models;
 using SQLitePCL;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Maker.RemoteWiring;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -41,7 +35,7 @@ namespace CoffeeAuth
 
 
             // check if user is in the database
-            m_user = GetUser(badgeCIN);
+            m_user = DrinkerDatabase.Instance.GetUser(badgeCIN);
             if (m_user == null)
             {
                 // create user
@@ -56,105 +50,112 @@ namespace CoffeeAuth
                 // Show user profile
                 userName.Text = m_user.Name;
                 userBalance.Text = m_user.Balance.ToString();
+
+                m_user.NumLogins++;
+                DrinkerDatabase.Instance.UpdateUser(m_user);
             }
         }
 
-        private User GetUser(string badgeCIN)
-        {
-            User user = null;
+        DispatcherTimer timer;
+        ContentDialog countdown_dialog;
 
-            using (var statement = App.conn.Prepare("SELECT BadgeCIN, Name, Balance FROM Customer WHERE BadgeCIN = ?"))
-            {
-                statement.Bind(1, badgeCIN);
-                if (SQLiteResult.ROW == statement.Step())
-                {
-                        user = new User()
-                        {
-                            BadgeCIN = (string)statement[0],
-                            Name = (string)statement[1],
-                            Balance = (long)statement[2]
-                        };
-                }
-            }
-            return user;
-        }
-
-        private void UpdateUserBalance(User user)
-        {
-            var existingUser = GetUser(badgeCIN);
-            if (existingUser != null)
-            {
-                using (var custstmt = App.conn.Prepare("UPDATE Customer SET Balance = ? WHERE BadgeCIN=?"))
-                {
-                    custstmt.Bind(1, user.Balance);
-                    custstmt.Bind(2, user.BadgeCIN);
-                    custstmt.Step();
-                }
-            }
-        }
 
         private void getCoffeeButton_Click(object sender, RoutedEventArgs e)
         {
             showToast("Espresso Shot", "$1 debited from your account", "thank you for shopping!");
             m_user.Balance--;
+            m_user.NumShots++;
             userBalance.Text = m_user.Balance.ToString();
-            UpdateUserBalance(m_user);
-            this.Frame.Navigate(typeof(MainPage));
+            DrinkerDatabase.Instance.UpdateUser(m_user);
 
-            // todo: turn on grinder for around 1 minute
+            Countdown();
+            numTicks = 30;
+            timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Tick += Timer_Tick;
+            timer.Start();
+            // Turn on grinder
+#if !HARDWARE
+            App.arduino.digitalWrite(13, PinState.HIGH);
+#endif
 
+        }
+
+        int numTicks;
+        TextBlock countdown;
+
+        private void Timer_Tick(object sender, object e)
+        {
+            DispatcherTimer timer = (DispatcherTimer)sender;
+            numTicks--;
+            if (numTicks == 0)
+            {
+            // Turn off grinder
+#if !HARDWARE
+                App.arduino.digitalWrite(13, PinState.LOW);
+#endif
+                Frame.Navigate(typeof(MainPage));
+                countdown_dialog.Hide();
+                timer.Stop();
+            }
+            else
+            {
+                //update timer UI 
+                countdown.Text = numTicks.ToString();
+                if (numTicks <= 15)
+                    countdown.Foreground = new SolidColorBrush(Colors.Orange);
+                if (numTicks <= 5)
+                    countdown.Foreground = new SolidColorBrush(Colors.Red);
+            }
+        }
+
+
+        private async void Countdown()
+        {
+            TextBlock text = new TextBlock();
+            text.HorizontalAlignment = HorizontalAlignment.Center;
+            text.Text = "You have 30 seconds to grind your coffee";
+
+            countdown = new TextBlock();
+            countdown.Text = "30";
+            countdown.FontSize = 48;
+            countdown.HorizontalAlignment = HorizontalAlignment.Center;
+            countdown.Padding = new Thickness(0, 10, 0, 0);
+
+            StackPanel stack = new StackPanel();
+            stack.Margin = new Thickness(0, 40, 0, 0);
+            stack.Children.Add(text);
+            stack.Children.Add(countdown);
+
+            countdown_dialog = new ContentDialog();
+            countdown_dialog.Content = stack;
+            SolidColorBrush color = new SolidColorBrush(Colors.Black);
+            countdown_dialog.Background = color;
+            await countdown_dialog.ShowAsync();
         }
 
         private void bagButton_Click(object sender, RoutedEventArgs e)
         {
             showToast("Espresso Beans Deposited", "$14 credited to your account.", "Everyone appreciates your efforts");
             m_user.Balance += 14;
+            m_user.NumBags++;
             userBalance.Text = m_user.Balance.ToString();
-            UpdateUserBalance(m_user);
+            DrinkerDatabase.Instance.UpdateUser(m_user);
         }
 
         private void milkButton_Click(object sender, RoutedEventArgs e)
         {
             showToast("Milk Jug Deposited", "$6 credited to your account.", "Everyone appreciates your efforts");
             m_user.Balance += 6;
+            m_user.NumMilks++;
             userBalance.Text = m_user.Balance.ToString();
-            UpdateUserBalance(m_user);
+            DrinkerDatabase.Instance.UpdateUser(m_user);
         }
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainPage));
+            Frame.Navigate(typeof(MainPage));
         }
-
-
-
-        /// <summary>
-        /// Used to display messages to the user
-        /// </summary>
-        /// <param name="strMessage"></param>
-        /// <param name="type"></param>
-        public void NotifyUser(string strMessage, NotifyType type)
-        {
-            switch (type)
-            {
-                case NotifyType.StatusMessage:
-                    StatusBorder.Background = new SolidColorBrush(Windows.UI.Colors.Green);
-                    break;
-                case NotifyType.ErrorMessage:
-                    StatusBorder.Background = new SolidColorBrush(Windows.UI.Colors.Red);
-                    break;
-            }
-            StatusBlock.Text = strMessage;
-
-            // Collapse the StatusBlock if it has no text to conserve real estate.
-            StatusBorder.Visibility = (StatusBlock.Text != String.Empty) ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public enum NotifyType
-        {
-            StatusMessage,
-            ErrorMessage
-        };
 
         private void showToast(string heading, string body, string body2)
 
@@ -184,5 +185,110 @@ namespace CoffeeAuth
         }
 
 
+        
+
+        ContentDialog m_settleDialog;
+        TextBox m_input;
+
+        private async void settleButton_Click(object sender, RoutedEventArgs e)
+        {
+            TextBlock title = new TextBlock();
+            title.Text = "Enter a positive or negative value";
+
+            m_input = new TextBox();
+            m_input.PlaceholderText = "Amount";
+            m_input.InputScope = new InputScope
+            {
+                Names =
+                {
+                    new InputScopeName(InputScopeNameValue.Digits)
+                }
+            };
+
+            Button debit = new Button();
+            debit.Content = "Debit";
+            debit.Click += Debit_Click;
+            debit.HorizontalAlignment = HorizontalAlignment.Right;
+
+            Button credit = new Button();
+            credit.Content = "Credit";
+            credit.Click += Credit_Click; ;
+            credit.HorizontalAlignment = HorizontalAlignment.Right;
+
+            Button cancel = new Button();
+            cancel.Content = "Cancel";
+            cancel.Click += Cancel_Click;
+            cancel.HorizontalAlignment = HorizontalAlignment.Right;
+
+            StackPanel buttonStack = new StackPanel();
+            buttonStack.Orientation = Orientation.Horizontal;
+            buttonStack.HorizontalAlignment = HorizontalAlignment.Right;
+            buttonStack.Children.Add(cancel);
+            buttonStack.Children.Add(debit);
+            buttonStack.Children.Add(credit);
+
+            StackPanel stack = new StackPanel();
+            stack.Margin = new Thickness(0, 40, 0, 0);
+            stack.Children.Add(title);
+            stack.Children.Add(m_input);
+            stack.Children.Add(buttonStack);
+
+            m_settleDialog = new ContentDialog();
+            m_settleDialog.Content = stack;
+            m_settleDialog.Background = new SolidColorBrush(Colors.Black);
+
+            await m_settleDialog.ShowAsync();
+        }
+
+        private void Credit_Click(object sender, RoutedEventArgs e)
+        {
+            string val = m_input.Text;
+            try
+            {
+                int num = Convert.ToInt32(val);
+
+                string body = "$" + num + " credited to your account.";
+                showToast("Settled Up", body, "Everyone appreciates your efforts");
+
+                m_user.Balance += num;
+                userBalance.Text = m_user.Balance.ToString();
+                DrinkerDatabase.Instance.UpdateUser(m_user);
+
+                m_settleDialog.Hide();
+            }
+            catch
+            {
+                // todo show error
+            }
+        }
+
+        
+
+        private void Debit_Click(object sender, RoutedEventArgs e)
+        {
+            string val = m_input.Text;
+            try
+            {
+                int num = Convert.ToInt32(val);
+
+                string body = "$" + num + " debited from your account.";
+                showToast("Settled Up", body, "Everyone appreciates your efforts");
+
+                m_user.Balance -= num;
+                userBalance.Text = m_user.Balance.ToString();
+                DrinkerDatabase.Instance.UpdateUser(m_user);
+
+                m_settleDialog.Hide();
+            }
+            catch
+            {
+                // todo show error
+            }
+        }
+
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            m_settleDialog.Hide();
+        }
     }
 }

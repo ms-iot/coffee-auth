@@ -27,16 +27,7 @@
         <Image x:Name="profilePicture" Margin="9.333,8,10,9.667" Source="Assets/photo.jpg" Grid.Column="1" Grid.Row="1"/>
         <TextBlock x:Name="userName" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="UserName" VerticalAlignment="Top" Width="988" Grid.Column="2" Grid.Row="1" Height="66" FontSize="48"/>
         <TextBlock x:Name="userBalance" HorizontalAlignment="Left" Margin="10,81,0,0" TextWrapping="Wrap" Text="Balance" VerticalAlignment="Top" Grid.Column="2" Grid.Row="1" Height="49" Width="988" FontSize="32"/>
-
-        <RelativePanel Margin="0,278.333,-293,0" Grid.Row="2" Grid.Column="2">
-            <Frame x:Name="ScenarioFrame" Margin="0,5,0,0" RelativePanel.AlignTopWithPanel="True" RelativePanel.Above="StatusPanel"/>
-            <StackPanel x:Name="StatusPanel" Orientation="Vertical" RelativePanel.AlignBottomWithPanel="True">
-                <TextBlock x:Name="StatusLabel" Margin="0,0,0,10" TextWrapping="Wrap" Text="Status:" />
-                <Border x:Name="StatusBorder" Margin="0,0,0,0" Visibility="Collapsed" >
-                    <TextBlock x:Name="StatusBlock" FontWeight="Bold" MaxHeight="200" MinWidth="{Binding ElementName=Splitter, Path=ActualWidth}" TextTrimming="CharacterEllipsis"  Margin="20,10,10,20" TextWrapping="Wrap"/>
-                </Border>
-            </StackPanel>
-        </RelativePanel>
+        
         <Button x:Name="getCoffeeButton" Content="Espresso Shot &#xD;&#xA;-$1" Grid.Column="2" HorizontalAlignment="Left" Margin="10,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="getCoffeeButton_Click" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333" >
             <Button.Background>
                 <SolidColorBrush Color="#FFF50057"/>
@@ -44,6 +35,7 @@
         </Button>
         <Button x:Name="bagButton" Content="Brought Beans&#xD;&#xA;+$14" Grid.Column="2" HorizontalAlignment="Left" Margin="194,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="bagButton_Click" Background="#FF00E5FF" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333"/>
         <Button x:Name="milkButton" Content="Brought Milk &#xD;&#xA;+$6" Grid.Column="2" HorizontalAlignment="Left" Margin="378,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="milkButton_Click" Background="#FFC6FF00" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333" />
+        <Button x:Name="settleButton" Content="Settle Up" Grid.Column="2" HorizontalAlignment="Left" Margin="562,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Background="#FFFF3D00" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333"  Click="settleButton_Click"/>
 
     </Grid>
 </Page>
