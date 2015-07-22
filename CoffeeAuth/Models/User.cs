@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace CoffeeAuth.Models
 
         public override string ToString()
         {
-            return Name + "\t\t" + Balance + "$"; 
+            return Name + "\t\t" + Balance + CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol; 
         }
     }
 }

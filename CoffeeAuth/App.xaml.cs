@@ -8,8 +8,7 @@ using Windows.UI.Xaml.Navigation;
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
 using SQLitePCL;
-
-// The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=402347&clcid=0x409
+using Windows.ApplicationModel.Resources;
 
 namespace CoffeeAuth
 {
@@ -22,10 +21,6 @@ namespace CoffeeAuth
         public static RemoteDevice arduino;
 
         /// <summary>
-        /// Allows tracking page views, exceptions and other telemetry through the Microsoft Application Insights service.
-        /// </summary>
-
-        /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
@@ -36,7 +31,7 @@ namespace CoffeeAuth
             this.Suspending += OnSuspending;
 
             // Setup arduino
-#if !HARDWARE
+#if HARDWARE
             App.usb = new UsbSerial("2341", "8036");
             App.arduino = new RemoteDevice(App.usb);
             App.usb.begin(115200, SerialConfig.SERIAL_8N1);
@@ -48,7 +43,7 @@ namespace CoffeeAuth
 
         private void Usb_ConnectionEstablished()
         {
-#if !HARDWARE
+#if HARDWARE
             App.arduino.pinMode(13, PinMode.OUTPUT);
             App.arduino.digitalWrite(13, PinState.LOW);
 #endif

@@ -37,5 +37,31 @@
         <Button x:Name="milkButton" Content="Brought Milk &#xD;&#xA;+$6" Grid.Column="2" HorizontalAlignment="Left" Margin="378,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="milkButton_Click" Background="#FFC6FF00" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333" />
         <Button x:Name="settleButton" Content="Settle Up" Grid.Column="2" HorizontalAlignment="Left" Margin="562,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Background="#FFFF3D00" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333"  Click="settleButton_Click"/>
 
+        <ContentDialog x:Name="SettleDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Tip Jar Settlement"
+                        PrimaryButtonText="Put In TipJar"
+                        PrimaryButtonClick="SettleDialog_PrimaryButtonClick"
+                        SecondaryButtonClick="SettleDialog_SecondaryButtonClick"
+                        IsPrimaryButtonEnabled="{Binding IsChecked, ElementName=checkBoxAgree, Mode=OneWay}"
+                        SecondaryButtonText="Removed from TipJar"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="Enter the amount added or taken from the Jar."
+                            TextWrapping="Wrap" />
+                <TextBox x:Name="settleUpTextBox" InputScope="Digits" PlaceholderText="Amount"/>
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="CountDownDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Grinder Countdown"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="You have 30 seconds to grind your coffee." HorizontalAlignment="Center" />
+                <TextBlock x:Name="countdownTimerText" Text="30" FontSize="48" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </ContentDialog>
+
     </Grid>
 </Page>

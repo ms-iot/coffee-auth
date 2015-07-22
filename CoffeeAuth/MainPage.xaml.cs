@@ -26,8 +26,6 @@ namespace CoffeeAuth
 
             // set fullscreen
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
-
-
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -40,12 +38,14 @@ namespace CoffeeAuth
         private void coffee_Click(object sender, RoutedEventArgs e)
         {
             if (badgeCIN.Text.Length != 0)
+            {
                 this.Frame.Navigate(typeof(UserPage), badgeCIN.Text);
+            }
         }
-        
 
         private async void badgeCIN_LostFocus(object sender, RoutedEventArgs e)
         {
+            // Don't refocus immediately to allow interaction with UI
             await Task.Delay(1000);
             badgeCIN.Focus(FocusState.Programmatic);
         }

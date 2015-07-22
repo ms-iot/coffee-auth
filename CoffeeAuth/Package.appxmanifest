@@ -4,7 +4,7 @@
   <mp:PhoneIdentity PhoneProductId="21b45950-0f39-49cd-bab9-25b119d49918" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>CoffeeAuth</DisplayName>
-    <PublisherDisplayName>t-cobroo</PublisherDisplayName>
+    <PublisherDisplayName>Microsoft</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
