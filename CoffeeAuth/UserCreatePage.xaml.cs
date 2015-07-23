@@ -38,7 +38,7 @@ namespace CoffeeAuth
 
         private void createUserButton_Click(object sender, RoutedEventArgs e)
         {
-            if (userTextBox.Text.Length != 0)
+            if (userTextBox.Text.Length > 0)
                 DrinkerDatabase.Instance.createUser(userTextBox.Text, badgeCIN);
             this.Frame.Navigate(typeof(UserPage), badgeCIN);
         }

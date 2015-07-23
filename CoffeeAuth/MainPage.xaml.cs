@@ -19,11 +19,11 @@ namespace CoffeeAuth
     /// </summary>
     public sealed partial class MainPage : Page 
     {
+        User lastUser;
 
         public MainPage()
         {
             this.InitializeComponent();
-
             // set fullscreen
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
         }
@@ -31,15 +31,54 @@ namespace CoffeeAuth
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            // last user
+            lastUser = e.Parameter as User;
+
             var users = DrinkerDatabase.Instance.GetAllUsers();
+            users.Sort(
+                delegate (User u1, User u2)
+                {
+                    return u1.Balance.CompareTo(u2.Balance);
+                }
+             );
+
             listView.ItemsSource = users;
+
+            if (lastUser != null)
+            {
+                int idx = -1;
+                foreach (var swag in users)
+                {
+                    if (swag.BadgeCIN == lastUser.BadgeCIN)
+                    {
+                        idx = users.IndexOf(swag);
+                        break;
+                    }
+                }
+
+                try
+                {
+                    var selected = listView.Items[idx];
+                    listView.SelectedIndex = users.IndexOf(lastUser);
+                    listView.SelectedItem = selected;
+                }
+                catch
+                {
+
+                }
+
+            }
         }
 
         private void coffee_Click(object sender, RoutedEventArgs e)
         {
-            if (badgeCIN.Text.Length != 0)
+            if (badgeCIN.Text.Length == 16)
             {
-                this.Frame.Navigate(typeof(UserPage), badgeCIN.Text);
+                Frame.Navigate(typeof(UserPage), badgeCIN.Text);
+            }
+            else if (badgeCIN.Text == App.rl.GetString("AdminPanelPassword"))
+            {
+                Frame.Navigate(typeof(AdminPage));
             }
         }
 

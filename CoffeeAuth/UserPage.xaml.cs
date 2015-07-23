@@ -1,18 +1,14 @@
 ﻿using CoffeeAuth.Models;
-using SQLitePCL;
 using System;
-using System.Text;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.Maker.RemoteWiring;
 using System.Globalization;
-using System.Resources;
 using Windows.ApplicationModel.Resources;
+using Microsoft.Maker.RemoteWiring;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -25,11 +21,11 @@ namespace CoffeeAuth
     {
         private string badgeCIN;
         private User user;
+
         DispatcherTimer timer;
         int numTicks;
 
         CultureInfo ci;
-        ResourceLoader loader;
 
         // Price value
         private const int grindPrice = 1;
@@ -40,7 +36,6 @@ namespace CoffeeAuth
         {
             this.InitializeComponent();
             ci = CultureInfo.CurrentCulture;
-            loader = new ResourceLoader();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -79,7 +74,7 @@ namespace CoffeeAuth
         /// <param name="e"></param>
         private void bagButton_Click(object sender, RoutedEventArgs e)
         {
-            showToast(loader.GetString("BagNotify_Title"), ci.NumberFormat.CurrencySymbol + beanBagPrice + loader.GetString("Credit"), loader.GetString("Appreciate"));
+            showToast(App.rl.GetString("BagNotify_Title"), ci.NumberFormat.CurrencySymbol + beanBagPrice + App.rl.GetString("Credit"), App.rl.GetString("Appreciate"));
             user.Balance += beanBagPrice;
             user.NumBags++;
             userBalance.Text = user.Balance.ToString();
@@ -94,7 +89,7 @@ namespace CoffeeAuth
         /// <param name="e"></param>
         private void milkButton_Click(object sender, RoutedEventArgs e)
         {
-            showToast(loader.GetString("MilkNotify_Title"), ci.NumberFormat.CurrencySymbol + milkJugPrice + loader.GetString("Credit"), loader.GetString("Appreciate"));
+            showToast(App.rl.GetString("MilkNotify_Title"), ci.NumberFormat.CurrencySymbol + milkJugPrice + App.rl.GetString("Credit"), App.rl.GetString("Appreciate"));
             user.Balance += milkJugPrice;
             user.NumMilks++;
             userBalance.Text = user.Balance.ToString();
@@ -106,25 +101,34 @@ namespace CoffeeAuth
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void getCoffeeButton_Click(object sender, RoutedEventArgs e)
+        private async void getCoffeeButton_Click(object sender, RoutedEventArgs e)
         {
-            showToast(loader.GetString("ShotNotify_Title"), ci.NumberFormat.CurrencySymbol + grindPrice + loader.GetString("Debit"), loader.GetString("Thanks"));
-            user.Balance -= grindPrice;
-            user.NumShots++;
-            userBalance.Text = user.Balance.ToString();
-            DrinkerDatabase.Instance.UpdateUser(user);
+            if (!App.isArduinoConnected)
+            {
+                await ArduinoReconnectDialog.ShowAsync();
+            }
+            else
+            {
 
-            Countdown();
-            numTicks = 30;
-            timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 1);
-            timer.Tick += Timer_Tick;
-            timer.Start();
+                showToast(App.rl.GetString("ShotNotify_Title"), ci.NumberFormat.CurrencySymbol + grindPrice + App.rl.GetString("Debit"), App.rl.GetString("Thanks"));
+                user.Balance -= grindPrice;
+                user.NumShots++;
+                userBalance.Text = user.Balance.ToString();
+                DrinkerDatabase.Instance.UpdateUser(user);
 
-            // Turn on grinder
+                Countdown();
+                numTicks = 30;
+                timer = new DispatcherTimer();
+                timer.Interval = new TimeSpan(0, 0, 1);
+                timer.Tick += Timer_Tick;
+                timer.Start();
+
+                // Turn on grinder
+
 #if HARDWARE
-            App.arduino.digitalWrite(13, PinState.HIGH);
+                App.arduino.digitalWrite(13, PinState.HIGH);
 #endif
+            }
 
         }
 
@@ -154,9 +158,13 @@ namespace CoffeeAuth
                 //update timer UI 
                 countdownTimerText.Text = numTicks.ToString();
                 if (numTicks <= 15)
+                {
                     countdownTimerText.Foreground = new SolidColorBrush(Colors.Orange);
+                }
                 if (numTicks <= 5)
+                {
                     countdownTimerText.Foreground = new SolidColorBrush(Colors.Red);
+                }
             }
         }
 
@@ -169,7 +177,7 @@ namespace CoffeeAuth
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(MainPage));
+            Frame.Navigate(typeof(MainPage), user);
         }
 
         /// <summary>
@@ -206,8 +214,8 @@ namespace CoffeeAuth
             {
                 int num = Convert.ToInt32(val);
 
-                string body = ci.NumberFormat.CurrencySymbol + num + loader.GetString("Credit");
-                showToast(loader.GetString("Settle_Title"), body, loader.GetString("Appreciate"));
+                string body = ci.NumberFormat.CurrencySymbol + num + App.rl.GetString("Credit");
+                showToast(App.rl.GetString("Settle_Title"), body, App.rl.GetString("Appreciate"));
 
                 user.Balance += num;
                 userBalance.Text = user.Balance.ToString();
@@ -228,8 +236,8 @@ namespace CoffeeAuth
             {
                 int num = Convert.ToInt32(val);
 
-                string body = ci.NumberFormat.CurrencySymbol + num + loader.GetString("Debit");
-                showToast(loader.GetString("Settle_Title"), body, loader.GetString("Appreciate"));
+                string body = ci.NumberFormat.CurrencySymbol + num + App.rl.GetString("Debit");
+                showToast(App.rl.GetString("Settle_Title"), body, App.rl.GetString("Appreciate"));
 
                 user.Balance -= num;
                 userBalance.Text = user.Balance.ToString();
@@ -240,6 +248,27 @@ namespace CoffeeAuth
             catch
             {
                 // todo show error
+            }
+        }
+
+        private void ArduinoReconnectDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            App.Usb_Reconnect();
+            ArduinoReconnectDialog.Hide();
+        }
+
+        private async void AppBarButton_Click_1(object sender, RoutedEventArgs e)
+        {
+            await NameChangeDialog.ShowAsync();
+        }
+
+        private void NameChangeDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            if (nameTextBox.Text.Length > 0)
+            {
+                user.Name = nameTextBox.Text;
+                userName.Text = nameTextBox.Text;
+                DrinkerDatabase.Instance.UpdateUser(user);
             }
         }
     }

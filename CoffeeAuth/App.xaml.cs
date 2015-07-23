@@ -7,7 +7,6 @@ using Windows.UI.Xaml.Navigation;
 
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
-using SQLitePCL;
 using Windows.ApplicationModel.Resources;
 
 namespace CoffeeAuth
@@ -19,6 +18,9 @@ namespace CoffeeAuth
     {
         public static UsbSerial usb;
         public static RemoteDevice arduino;
+        public static bool isArduinoConnected;
+
+        public static ResourceLoader rl;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -30,22 +32,41 @@ namespace CoffeeAuth
             this.InitializeComponent();
             this.Suspending += OnSuspending;
 
+            rl = new ResourceLoader();
+
             // Setup arduino
+            Usb_Reconnect();
+        }
+
+        public static void Usb_Reconnect()
+        {
 #if HARDWARE
             App.usb = new UsbSerial("2341", "8036");
             App.arduino = new RemoteDevice(App.usb);
             App.usb.begin(115200, SerialConfig.SERIAL_8N1);
             App.usb.ConnectionEstablished += Usb_ConnectionEstablished; ;
+            App.usb.ConnectionLost += Usb_ConnectionLost;
+            App.usb.ConnectionFailed += Usb_ConnectionFailed;
 #endif
-            
-
         }
 
-        private void Usb_ConnectionEstablished()
+        private static void Usb_ConnectionFailed(string message)
+        {
+            isArduinoConnected = false;
+        }
+
+        private static void Usb_ConnectionLost()
+        {
+            isArduinoConnected = false;
+        }
+
+
+        private static void Usb_ConnectionEstablished()
         {
 #if HARDWARE
             App.arduino.pinMode(13, PinMode.OUTPUT);
             App.arduino.digitalWrite(13, PinState.LOW);
+            isArduinoConnected = true;
 #endif
         }
 

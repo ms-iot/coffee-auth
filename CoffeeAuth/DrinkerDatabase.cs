@@ -10,6 +10,7 @@ namespace CoffeeAuth
 {
     class DrinkerDatabase
     {
+        // database singleton
         private static DrinkerDatabase database;
         public SQLiteConnection conn;
 
@@ -135,6 +136,19 @@ namespace CoffeeAuth
                     custstmt.Bind(7, user.NumLogins);
                     custstmt.Bind(8, user.BadgeCIN);
                     custstmt.Step();
+                }
+            }
+        }
+
+        public void DeleteUser(User user)
+        {
+            var existingUser = Instance.GetUser(user.BadgeCIN);
+            if (existingUser != null)
+            {
+                using (var delstmt = conn.Prepare("DELETE FROM Customer WHERE BadgeCIN=?"))
+                {
+                    delstmt.Bind(1, user.BadgeCIN);
+                    delstmt.Step();
                 }
             }
         }

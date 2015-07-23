@@ -13,6 +13,12 @@
         </AppBar>
     </Page.TopAppBar>
 
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Label="Settings" Icon="Setting" Click="AppBarButton_Click_1"/>
+        </CommandBar>
+    </Page.BottomAppBar>
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="64*"/>
@@ -60,6 +66,31 @@
             <StackPanel>
                 <TextBlock Text="You have 30 seconds to grind your coffee." HorizontalAlignment="Center" />
                 <TextBlock x:Name="countdownTimerText" Text="30" FontSize="48" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="ArduinoReconnectDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Arduino Disconnected"
+                        PrimaryButtonText="Reconnect"
+                        PrimaryButtonClick="ArduinoReconnectDialog_PrimaryButtonClick"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="Please reconnect the arduino and press Reconnect." HorizontalAlignment="Center" />
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="NameChangeDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Name Change"
+                        PrimaryButtonText="Change Name"
+                        PrimaryButtonClick="NameChangeDialog_PrimaryButtonClick"
+                        SecondaryButtonText="Cancel"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="Enter a new name!"
+                            TextWrapping="Wrap" />
+                <TextBox x:Name="nameTextBox" PlaceholderText="New Name"/>
             </StackPanel>
         </ContentDialog>
 
