@@ -11,6 +11,7 @@ namespace CoffeeAuth.Models
     {
         public string Name;
         public string BadgeCIN;
+        public bool IsAdmin;
         public long Balance;
 
         public long NumBags;
