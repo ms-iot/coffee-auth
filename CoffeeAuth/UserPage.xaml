@@ -15,7 +15,8 @@
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Label="Settings" Icon="Setting" Click="AppBarButton_Click_1"/>
+            <AppBarButton x:Name="AdminButton" Label="Admin" Icon="Admin" Click="AppBarAdminButton_Click" Visibility="Collapsed" IsEnabled="False"/>
+            <AppBarButton x:Name="SettingsButton" Label="Settings" Icon="Setting" Click="AppBarSettingsButton_Click"/>
         </CommandBar>
     </Page.BottomAppBar>
 

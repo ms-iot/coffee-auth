@@ -61,6 +61,12 @@ namespace CoffeeAuth
                 userName.Text = user.Name;
                 userBalance.Text = user.Balance.ToString();
 
+                if(user.IsAdmin)
+                {
+                    AdminButton.Visibility = Visibility.Visible;
+                    AdminButton.IsEnabled = true;
+                }
+
                 user.NumLogins++;
                 DrinkerDatabase.Instance.UpdateUser(user);
             }
@@ -257,9 +263,14 @@ namespace CoffeeAuth
             ArduinoReconnectDialog.Hide();
         }
 
-        private async void AppBarButton_Click_1(object sender, RoutedEventArgs e)
+        private async void AppBarSettingsButton_Click(object sender, RoutedEventArgs e)
         {
             await NameChangeDialog.ShowAsync();
+        }
+
+        private void AppBarAdminButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(AdminPage), user);
         }
 
         private void NameChangeDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
