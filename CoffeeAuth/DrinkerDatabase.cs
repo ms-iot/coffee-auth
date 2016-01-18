@@ -77,7 +77,7 @@ namespace CoffeeAuth
 
             try
             {
-                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
+                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
                 {
                     userstmt.Bind(1, name);
                     userstmt.Bind(2, badgeCIN);
@@ -87,6 +87,7 @@ namespace CoffeeAuth
                     userstmt.Bind(6, 0);
                     userstmt.Bind(7, 0);
                     userstmt.Bind(8, ""); // no image
+                    userstmt.Bind(9, 0);
                     userstmt.Step();
                 }
             }
