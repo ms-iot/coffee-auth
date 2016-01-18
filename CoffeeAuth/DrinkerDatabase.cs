@@ -26,7 +26,7 @@ namespace CoffeeAuth
 
         public DrinkerDatabase()
         {
-            conn = new SQLiteConnection("coffeepeople.db");
+            conn = new SQLiteConnection(ConnectionSettings.LocalConnectionString);
             string s = @"CREATE TABLE IF NOT EXISTS
                             Customer (Id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                 Name        VARCHAR( 140 ),

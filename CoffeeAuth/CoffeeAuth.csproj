@@ -100,6 +100,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConnectionSettings.cs" />
     <Compile Include="DrinkerDatabase.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="UserCreatePage.xaml.cs">
