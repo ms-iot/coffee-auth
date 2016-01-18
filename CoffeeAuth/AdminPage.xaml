@@ -39,6 +39,7 @@
         	<Run/>
         </TextBlock>
         <Button x:Name="deleteUser" Content="Delete User" HorizontalAlignment="Left" Margin="204.2,154.8,0,0" VerticalAlignment="Top" Background="#FFF44336" Grid.Column="1" Grid.Row="1" Click="deleteUser_Click" Visibility="Collapsed"/>
+        <Button x:Name="toggleAdmin" Content="Make Admin" HorizontalAlignment="Left" Margin="204.2,9.8,0,0" VerticalAlignment="Top" Background="#FFF44336" Grid.Column="1" Grid.Row="1" Click="toggleAdmin_Click" Visibility="Collapsed"/>
         <Image x:Name="profilePicture" Margin="10.2,9.8,0,0" Source="Assets/photo.jpg" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Width="189" Height="178" VerticalAlignment="Top" Visibility="Collapsed"/>
 
     </Grid>

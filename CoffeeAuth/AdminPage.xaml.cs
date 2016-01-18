@@ -40,6 +40,12 @@ namespace CoffeeAuth
             UpdateListView();
         }
 
+        private void toggleAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            currUser.IsAdmin = !currUser.IsAdmin;
+            DrinkerDatabase.Instance.UpdateUser(currUser);
+        }
+
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(MainPage));
@@ -52,12 +58,15 @@ namespace CoffeeAuth
                 userName.Visibility = Visibility.Visible;
                 profilePicture.Visibility = Visibility.Visible;
                 deleteUser.Visibility = Visibility.Visible;
+                toggleAdmin.Content = currUser.IsAdmin ? "Remove Admin" : "Make Admin";
+                toggleAdmin.Visibility = Visibility.Visible;
             }
             else
             {
                 userName.Visibility = Visibility.Collapsed;
                 profilePicture.Visibility = Visibility.Collapsed;
                 deleteUser.Visibility = Visibility.Collapsed;
+                toggleAdmin.Visibility = Visibility.Collapsed;
             }
         }
     }
