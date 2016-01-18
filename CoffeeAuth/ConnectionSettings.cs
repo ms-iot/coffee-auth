@@ -8,6 +8,7 @@ namespace CoffeeAuth
 {
     static class ConnectionSettings
     {
-        public static string LocalConnectionString = "coffeepeople.db";
+        public const string LocalConnectionString = "coffeepeople.db";
+        public const string CloudConnectionString = "";
     }
 }
