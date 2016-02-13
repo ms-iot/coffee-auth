@@ -16,6 +16,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 *project.lock.json*
+*.nuget.targets
 
 # Roslyn cache directories
 *.ide/
