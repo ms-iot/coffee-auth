@@ -37,7 +37,8 @@ namespace CoffeeAuth
                                 NumBags     INTEGER,
                                 NumMilks    INTEGER,
                                 NumShots    INTEGER,
-                                NumLogins   INTEGER
+                                NumLogins   INTEGER,
+                                LastLogin   INTEGER
                             );";
 
             using (var statement = conn.Prepare(s))
@@ -49,7 +50,7 @@ namespace CoffeeAuth
         public List<User> GetAllUsers()
         {
             List<User> users = new List<User>();
-            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin FROM Customer"))
+            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin, LastLogin FROM Customer"))
             {
                 while (SQLiteResult.ROW == statement.Step())
                 {
@@ -63,7 +64,8 @@ namespace CoffeeAuth
                         NumShots = (long)statement[5],
                         NumLogins = (long)statement[6],
                         PictureUrl = (string)statement[7],
-                        IsAdmin = (bool)statement[8]
+                        IsAdmin = (bool)statement[8],
+                        lastLogin = new DateTime((long)statement[9])
                     };
                     users.Add(user);
                 }
@@ -77,7 +79,7 @@ namespace CoffeeAuth
 
             try
             {
-                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
+                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin, LastLogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"))
                 {
                     userstmt.Bind(1, name);
                     userstmt.Bind(2, badgeCIN);
@@ -88,6 +90,7 @@ namespace CoffeeAuth
                     userstmt.Bind(7, 0);
                     userstmt.Bind(8, ""); // no image
                     userstmt.Bind(9, 0);
+                    userstmt.Bind(10, DateTime.Now.Ticks);
                     userstmt.Step();
                 }
             }
@@ -101,7 +104,7 @@ namespace CoffeeAuth
         {
             User user = null;
 
-            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin FROM Customer WHERE BadgeCIN = ?"))
+            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin, LastLogin FROM Customer WHERE BadgeCIN = ?"))
             {
 
                 statement.Bind(1, badgeCIN);
@@ -117,7 +120,8 @@ namespace CoffeeAuth
                         NumShots = (long)statement[5],
                         NumLogins = (long)statement[6],
                         PictureUrl = (string)statement[7],
-                        IsAdmin = (bool)statement[8]
+                        IsAdmin = (bool)statement[8],
+                        lastLogin = new DateTime((long)statement[9])
                     };
                 }
             }
@@ -129,7 +133,7 @@ namespace CoffeeAuth
             var existingUser = Instance.GetUser(user.BadgeCIN);
             if (existingUser != null)
             {
-                using (var custstmt = conn.Prepare("UPDATE Customer SET Balance = ?, Name = ?, PictureUrl = ?, NumBags = ?, NumMilks = ?, NumShots = ?, NumLogins = ?, IsAdmin = ? WHERE BadgeCIN=?"))
+                using (var custstmt = conn.Prepare("UPDATE Customer SET Balance = ?, Name = ?, PictureUrl = ?, NumBags = ?, NumMilks = ?, NumShots = ?, NumLogins = ?, IsAdmin = ?, LastLogin = ? WHERE BadgeCIN=?"))
                 {
                     custstmt.Bind(1, user.Balance);
                     custstmt.Bind(2, user.Name);
@@ -140,6 +144,7 @@ namespace CoffeeAuth
                     custstmt.Bind(7, user.NumLogins);
                     custstmt.Bind(8, user.IsAdmin);
                     custstmt.Bind(9, user.BadgeCIN);
+                    custstmt.Bind(10, user.lastLogin.Ticks);
                     custstmt.Step();
                 }
             }
