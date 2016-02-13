@@ -65,7 +65,7 @@ namespace CoffeeAuth
                         NumShots = (long)statement[5],
                         NumLogins = (long)statement[6],
                         PictureUrl = (string)statement[7],
-                        IsAdmin = (bool)statement[8],
+                        IsAdmin = Convert.ToBoolean(statement[8]),
                         LastLogin = new DateTime((long)statement[9]),
                         Email = (string)statement[10]
                     };
@@ -123,7 +123,7 @@ namespace CoffeeAuth
                         NumShots = (long)statement[5],
                         NumLogins = (long)statement[6],
                         PictureUrl = (string)statement[7],
-                        IsAdmin = (bool)statement[8],
+                        IsAdmin = Convert.ToBoolean(statement[8]),
                         LastLogin = new DateTime((long)statement[9]),
                         Email = (string)statement[10]
                     };
@@ -146,7 +146,7 @@ namespace CoffeeAuth
                     custstmt.Bind(5, user.NumMilks);
                     custstmt.Bind(6, user.NumShots);
                     custstmt.Bind(7, user.NumLogins);
-                    custstmt.Bind(8, user.IsAdmin);
+                    custstmt.Bind(8, Convert.ToInt64(user.IsAdmin));
                     custstmt.Bind(9, user.LastLogin.Ticks);
                     custstmt.Bind(10, user.Email);
                     custstmt.Bind(11, user.BadgeCIN);
