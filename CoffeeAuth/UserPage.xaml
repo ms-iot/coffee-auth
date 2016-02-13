@@ -1,0 +1,98 @@
+﻿<Page
+    x:Class="CoffeeAuth.UserPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CoffeeAuth"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.TopAppBar>
+        <AppBar IsSticky="True" IsOpen="True">
+            <AppBarButton Label="Back" Icon="Back" Click="AppBarButton_Click"/>
+        </AppBar>
+    </Page.TopAppBar>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Label="Settings" Icon="Setting" Click="AppBarButton_Click_1"/>
+        </CommandBar>
+    </Page.BottomAppBar>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64*"/>
+            <RowDefinition Height="293*"/>
+            <RowDefinition Height="603*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="61*"/>
+            <ColumnDefinition Width="293*"/>
+            <ColumnDefinition Width="1086*"/>
+        </Grid.ColumnDefinitions>
+        <Image x:Name="profilePicture" Margin="9.333,8,10,9.667" Source="Assets/photo.jpg" Grid.Column="1" Grid.Row="1"/>
+        <TextBlock x:Name="userName" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="UserName" VerticalAlignment="Top" Width="988" Grid.Column="2" Grid.Row="1" Height="66" FontSize="48"/>
+        <TextBlock x:Name="userBalance" HorizontalAlignment="Left" Margin="10,81,0,0" TextWrapping="Wrap" Text="Balance" VerticalAlignment="Top" Grid.Column="2" Grid.Row="1" Height="49" Width="988" FontSize="32"/>
+        
+        <Button x:Name="getCoffeeButton" Content="Espresso Shot &#xD;&#xA;-$1" Grid.Column="2" HorizontalAlignment="Left" Margin="10,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="getCoffeeButton_Click" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333" >
+            <Button.Background>
+                <SolidColorBrush Color="#FFF50057"/>
+            </Button.Background>
+        </Button>
+        <Button x:Name="bagButton" Content="Brought Beans&#xD;&#xA;+$14" Grid.Column="2" HorizontalAlignment="Left" Margin="194,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="bagButton_Click" Background="#FF00E5FF" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333"/>
+        <Button x:Name="milkButton" Content="Brought Milk &#xD;&#xA;+$6" Grid.Column="2" HorizontalAlignment="Left" Margin="378,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Click="milkButton_Click" Background="#FFC6FF00" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333" />
+        <Button x:Name="settleButton" Content="Settle Up" Grid.Column="2" HorizontalAlignment="Left" Margin="562,10.333,0,0" Grid.Row="2" VerticalAlignment="Top" Height="161" Width="179" Background="#FFFF3D00" Foreground="#FF212121" FontFamily="Calibri Light" FontSize="21.333"  Click="settleButton_Click"/>
+
+        <ContentDialog x:Name="SettleDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Tip Jar Settlement"
+                        PrimaryButtonText="Put In TipJar"
+                        PrimaryButtonClick="SettleDialog_PrimaryButtonClick"
+                        SecondaryButtonClick="SettleDialog_SecondaryButtonClick"
+                        IsPrimaryButtonEnabled="{Binding IsChecked, ElementName=checkBoxAgree, Mode=OneWay}"
+                        SecondaryButtonText="Removed from TipJar"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="Enter the amount added or taken from the Jar."
+                            TextWrapping="Wrap" />
+                <TextBox x:Name="settleUpTextBox" InputScope="Digits" PlaceholderText="Amount"/>
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="CountDownDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Grinder Countdown"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="You have 30 seconds to grind your coffee." HorizontalAlignment="Center" />
+                <TextBlock x:Name="countdownTimerText" Text="30" FontSize="48" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="ArduinoReconnectDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Arduino Disconnected"
+                        PrimaryButtonText="Reconnect"
+                        PrimaryButtonClick="ArduinoReconnectDialog_PrimaryButtonClick"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="Please reconnect the arduino and press Reconnect." HorizontalAlignment="Center" />
+            </StackPanel>
+        </ContentDialog>
+
+        <ContentDialog x:Name="NameChangeDialog"
+                        VerticalAlignment="Stretch"
+                        Title="Name Change"
+                        PrimaryButtonText="Change Name"
+                        PrimaryButtonClick="NameChangeDialog_PrimaryButtonClick"
+                        SecondaryButtonText="Cancel"
+                        MaxWidth="{Binding ActualWidth, ElementName=pageRoot}">
+            <StackPanel>
+                <TextBlock Text="Enter a new name!"
+                            TextWrapping="Wrap" />
+                <TextBox x:Name="nameTextBox" PlaceholderText="New Name"/>
+            </StackPanel>
+        </ContentDialog>
+
+    </Grid>
+</Page>
