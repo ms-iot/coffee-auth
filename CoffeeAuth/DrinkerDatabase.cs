@@ -147,9 +147,9 @@ namespace CoffeeAuth
                     custstmt.Bind(6, user.NumShots);
                     custstmt.Bind(7, user.NumLogins);
                     custstmt.Bind(8, user.IsAdmin);
-                    custstmt.Bind(9, user.BadgeCIN);
-                    custstmt.Bind(10, user.LastLogin.Ticks);
-                    custstmt.Bind(11, user.Email);
+                    custstmt.Bind(9, user.LastLogin.Ticks);
+                    custstmt.Bind(10, user.Email);
+                    custstmt.Bind(11, user.BadgeCIN);
                     custstmt.Step();
                 }
             }
