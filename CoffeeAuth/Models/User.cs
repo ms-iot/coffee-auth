@@ -18,7 +18,7 @@ namespace CoffeeAuth.Models
         public long NumMilks;
         public long NumShots;
         public long NumLogins;
-        public DateTime lastLogin;
+        public DateTime LastLogin;
 
         public string PictureUrl;
 

@@ -65,7 +65,7 @@ namespace CoffeeAuth
                         NumLogins = (long)statement[6],
                         PictureUrl = (string)statement[7],
                         IsAdmin = (bool)statement[8],
-                        lastLogin = new DateTime((long)statement[9])
+                        LastLogin = new DateTime((long)statement[9])
                     };
                     users.Add(user);
                 }
@@ -121,7 +121,7 @@ namespace CoffeeAuth
                         NumLogins = (long)statement[6],
                         PictureUrl = (string)statement[7],
                         IsAdmin = (bool)statement[8],
-                        lastLogin = new DateTime((long)statement[9])
+                        LastLogin = new DateTime((long)statement[9])
                     };
                 }
             }
@@ -144,7 +144,7 @@ namespace CoffeeAuth
                     custstmt.Bind(7, user.NumLogins);
                     custstmt.Bind(8, user.IsAdmin);
                     custstmt.Bind(9, user.BadgeCIN);
-                    custstmt.Bind(10, user.lastLogin.Ticks);
+                    custstmt.Bind(10, user.LastLogin.Ticks);
                     custstmt.Step();
                 }
             }
