@@ -47,6 +47,7 @@ namespace CoffeeAuth
             if (lastUser != null)
             {
                 int idx = -1;
+                //find index of last user in listview
                 foreach (var swag in users)
                 {
                     if (swag.BadgeCIN == lastUser.BadgeCIN)
@@ -58,6 +59,7 @@ namespace CoffeeAuth
 
                 try
                 {
+                    //select user in list, which highlights user for visibility
                     var selected = listView.Items[idx];
                     listView.SelectedIndex = users.IndexOf(lastUser);
                     listView.SelectedItem = selected;
