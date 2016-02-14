@@ -26,17 +26,20 @@ namespace CoffeeAuth
 
         public DrinkerDatabase()
         {
-            conn = new SQLiteConnection("coffeepeople.db");
+            conn = new SQLiteConnection(ConnectionSettings.LocalConnectionString);
             string s = @"CREATE TABLE IF NOT EXISTS
                             Customer (Id    INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                 Name        VARCHAR( 140 ),
+                                IsAdmin     INTEGER,
                                 BadgeCIN    VARCHAR( 140 ),
+                                Email       VARCHAR( 140 ),
                                 PictureUrl  VARCHAR( 140 ),
                                 Balance     INTEGER,
                                 NumBags     INTEGER,
                                 NumMilks    INTEGER,
                                 NumShots    INTEGER,
-                                NumLogins   INTEGER
+                                NumLogins   INTEGER,
+                                LastLogin   INTEGER
                             );";
 
             using (var statement = conn.Prepare(s))
@@ -48,7 +51,7 @@ namespace CoffeeAuth
         public List<User> GetAllUsers()
         {
             List<User> users = new List<User>();
-            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl FROM Customer"))
+            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin, LastLogin, Email FROM Customer"))
             {
                 while (SQLiteResult.ROW == statement.Step())
                 {
@@ -61,7 +64,10 @@ namespace CoffeeAuth
                         NumMilks = (long)statement[4],
                         NumShots = (long)statement[5],
                         NumLogins = (long)statement[6],
-                        PictureUrl = (string)statement[7]
+                        PictureUrl = (string)statement[7],
+                        IsAdmin = Convert.ToBoolean(statement[8]),
+                        LastLogin = new DateTime((long)statement[9]),
+                        Email = (string)statement[10]
                     };
                     users.Add(user);
                 }
@@ -75,7 +81,7 @@ namespace CoffeeAuth
 
             try
             {
-                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"))
+                using (var userstmt = conn.Prepare("INSERT INTO Customer (Name, BadgeCIN, BALANCE, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin, LastLogin, Email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"))
                 {
                     userstmt.Bind(1, name);
                     userstmt.Bind(2, badgeCIN);
@@ -85,6 +91,9 @@ namespace CoffeeAuth
                     userstmt.Bind(6, 0);
                     userstmt.Bind(7, 0);
                     userstmt.Bind(8, ""); // no image
+                    userstmt.Bind(9, 0);
+                    userstmt.Bind(10, DateTime.Now.Ticks);
+                    userstmt.Bind(11, "");
                     userstmt.Step();
                 }
             }
@@ -98,7 +107,7 @@ namespace CoffeeAuth
         {
             User user = null;
 
-            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl FROM Customer WHERE BadgeCIN = ?"))
+            using (var statement = conn.Prepare("SELECT BadgeCIN, Name, Balance, NumBags, NumMilks, NumShots, NumLogins, PictureUrl, IsAdmin, LastLogin, Email FROM Customer WHERE BadgeCIN = ?"))
             {
 
                 statement.Bind(1, badgeCIN);
@@ -113,7 +122,10 @@ namespace CoffeeAuth
                         NumMilks = (long)statement[4],
                         NumShots = (long)statement[5],
                         NumLogins = (long)statement[6],
-                        PictureUrl = (string)statement[7]
+                        PictureUrl = (string)statement[7],
+                        IsAdmin = Convert.ToBoolean(statement[8]),
+                        LastLogin = new DateTime((long)statement[9]),
+                        Email = (string)statement[10]
                     };
                 }
             }
@@ -125,7 +137,7 @@ namespace CoffeeAuth
             var existingUser = Instance.GetUser(user.BadgeCIN);
             if (existingUser != null)
             {
-                using (var custstmt = conn.Prepare("UPDATE Customer SET Balance = ?, Name = ?, PictureUrl = ?, NumBags = ?, NumMilks = ?, NumShots = ?, NumLogins = ? WHERE BadgeCIN=?"))
+                using (var custstmt = conn.Prepare("UPDATE Customer SET Balance = ?, Name = ?, PictureUrl = ?, NumBags = ?, NumMilks = ?, NumShots = ?, NumLogins = ?, IsAdmin = ?, LastLogin = ?, Email = ? WHERE BadgeCIN=?"))
                 {
                     custstmt.Bind(1, user.Balance);
                     custstmt.Bind(2, user.Name);
@@ -134,7 +146,10 @@ namespace CoffeeAuth
                     custstmt.Bind(5, user.NumMilks);
                     custstmt.Bind(6, user.NumShots);
                     custstmt.Bind(7, user.NumLogins);
-                    custstmt.Bind(8, user.BadgeCIN);
+                    custstmt.Bind(8, Convert.ToInt64(user.IsAdmin));
+                    custstmt.Bind(9, user.LastLogin.Ticks);
+                    custstmt.Bind(10, user.Email);
+                    custstmt.Bind(11, user.BadgeCIN);
                     custstmt.Step();
                 }
             }

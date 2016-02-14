@@ -4,7 +4,8 @@
     "SQLitePCL": "3.8.7.2"
   },
   "frameworks": {
-    "netcore50": {}
+    "netcore50": { },
+    "UAP,Version=10.0.10240": { }
   },
   "runtimes": {
     "win10-arm": {},
