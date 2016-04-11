@@ -1,3 +1,0 @@
-[submodule "remote-wiring"]
-	path = remote-wiring
-	url = https://github.com/ms-iot/remote-wiring.git
